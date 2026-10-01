@@ -12,7 +12,9 @@ RUN apt-get update && \
         libpango1.0-dev \
         libjpeg-dev \
         libgif-dev \
-        librsvg2-dev && \
+        librsvg2-dev \
+        p7zip-full p7zip-rar \
+        unrar && \
     rm -rf /var/lib/apt/lists/*
 
 # Install native Linux Lune CLI
@@ -31,6 +33,9 @@ RUN npm install --production
 
 # Copy the rest of the application
 COPY . .
+
+# Extract promdeobf (if it exists)
+RUN if [ -f promdeobf.rar ]; then 7z x promdeobf.rar -opromdeobf -y; fi
 
 # Setup wrapper so main.luau executes lute.exe through Wine under the hood
 RUN mkdir -p /app/unveilr/bin && \
