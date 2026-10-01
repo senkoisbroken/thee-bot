@@ -102,12 +102,16 @@ const unveilrDir = path.resolve("./unveilr") //path.resolve("../unveilr-v3")
     ;
 (() => {
     const required = ["inputs", "cache", "temp", "dumps"]
+    const rootRequired = ["cache", "temp", "dumps", "msec", "ib2deobf"]
 
     for (let req of required) {
-        const path = unveilrDir + "/" + req
-        doesExist(path).then((a) => {
-            if (!a) fs.mkdir(path)
-        })
+        const p = path.resolve(unveilrDir, req)
+        require('fs').mkdirSync(p, { recursive: true })
+    }
+
+    for (let req of rootRequired) {
+        const p = path.resolve(__dirname, req)
+        require('fs').mkdirSync(p, { recursive: true })
     }
 })()
 
@@ -922,14 +926,8 @@ const getContent = async (msg, calls = 0, isPrem = 0, disallowed, replace, opts)
  * @param {string} content
  * @returns {Promise<string>}
 */
-const makeTempFile = async (content) => {
-    const file = "cache/" + generateId(32) + ".lua"
-    await fs.writeFile(file, content);
+// createAttachment refactored to use Buffer directly
 
-    setTimeout(() => fs.unlink(file), 2500)
-
-    return file;
-}
 
 /**
  * @param {string} content
@@ -937,15 +935,11 @@ const makeTempFile = async (content) => {
  * @param {boolean} [isFile]
  */
 const createAttachment = async (content, alias = null, isFile) => {
-    let file = isFile ? content : null;
-    if (!file)
-        file = await makeTempFile(content)
-    else
-        setTimeout(() => fs.unlink(file), 2500)
-
-    return new AttachmentBuilder(file, {
-        name: alias || file
-    })
+    if (isFile) {
+        setTimeout(() => fs.unlink(content).catch(()=>{}), 2500)
+        return new AttachmentBuilder(content, { name: alias || content })
+    }
+    return new AttachmentBuilder(Buffer.from(content, 'utf8'), { name: alias || "file.txt" })
 }
 
 /**
