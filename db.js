@@ -1748,12 +1748,17 @@ const commands = {
 
                     await fs.writeFile(input, data)
                     
-                    const process = fork("./promdeobf/main.js", [ input, output ])
+                    const process = fork("./promdeobf/main.js", [ input, output ], { silent: true })
+                    let errOutput = ""
+                    process.stderr?.on("data", (chunk) => errOutput += chunk.toString())
                     const start = performance.now()
 
                     process.on("exit", async (a) => {
-                        if (a)
-                            return (await m2).edit(`Failed to deobfuscate file, exited with code 0x${a.toString(16)}`)
+                        fs.unlink(input).catch(() => {})
+                        if (a) {
+                            const firstLine = errOutput.split('\n').find(l => l.includes('Error:')) || errOutput.split('\n')[0] || `exited with code 0x${a.toString(16)}`
+                            return (await m2).edit(`Failed to deobfuscate file: ${firstLine.trim()}`)
+                        }
 
                         await m.reply({
                             content: `[PROMETHEUS]\nSuccessfully deobfuscated in ${Math.floor(performance.now() - start)}ms`,
