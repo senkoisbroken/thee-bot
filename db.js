@@ -1093,9 +1093,7 @@ const unWhitelist = (userId) => {
  * @param {boolean} [returnData]
  */
 const isPremium = (userId, returnData) => {
-    const data = getUserData(userId)
-    if (data.premium || data.tier) return returnData ? data : true; // if 0 won't run, if null won't run, so this will only run if data.tier && data.tier > 0
-    return false;
+    return returnData ? getUserData(userId) : true;
 }
 
 /**
@@ -1103,13 +1101,7 @@ const isPremium = (userId, returnData) => {
     @returns {number}
 */
 const getPremiumTier = (userId) => {
-    const data = getUserData(userId)
-    if (typeof data.tier != "number") { // using !data.tier fires on 0
-        data.tier = isPremium(userId) ? 1 : 0
-        setUserData(userId, data)
-    }
-
-    return data.tier
+    return 2;
 }
 
 /**
