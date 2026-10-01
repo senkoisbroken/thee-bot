@@ -18,7 +18,6 @@ const request = async (url) => {
     try {
         const content = await requestPromise({
             url: url,
-            proxy: proxy,
             method: "GET",
             headers: url.match(/https:\/\/\w+\.roblox\.com/) ? undefined : {
                 "traceparent": `00-${generateId(49)}-00`,
