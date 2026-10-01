@@ -1,0 +1,12 @@
+node_modules/
+.env
+cache/
+dumps/
+temp/
+*.db
+*.db-journal
+*.log
+unveilr/cache/
+unveilr/temp/
+unveilr/dumps/
+unveilr/inputs/

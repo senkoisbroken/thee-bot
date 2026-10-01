@@ -112,7 +112,15 @@ const unveilrDir = path.resolve("./unveilr") //path.resolve("../unveilr-v3")
 })()
 
 const isLinux = os.platform() === "linux"
-const lunePath = isLinux ? "./bin/lune-linux" : "lune"
+const lunePath = "lune"
+
+// Wrapper to spawn executables with Wine on Linux
+function spawnWrapper(cmd, args = [], options = {}) {
+    if (isLinux && cmd.endsWith('.exe')) {
+        return spawn('wine', [cmd, ...args], options);
+    }
+    return spawn(cmd, args, options);
+}
 const env = process.env
 
 const isTesting = !env.PROD
@@ -1566,7 +1574,7 @@ const decompile = async (file, useOracle) => {
 
         const tempFile = "cache/" + generateId(16)
 
-        const proc = spawn('medal.exe', ["decompile", '--input', file, '--output', tempFile])
+        const proc = spawnWrapper('medal.exe', ["decompile", '--input', file, '--output', tempFile])
 
         return new Promise((res, rej) => {
             proc.on("exit", async (a) => {
@@ -1783,7 +1791,7 @@ const commands = {
 
                 const msg = reply(addTyping("Deobfuscating with [the MoonSec Deobfuscator](https://github.com/tupsutumppu/MoonsecDeobfuscator)"))
 
-                const proc = spawn("./MoonsecDeobfuscator.exe", ['-dev', '-i', input, '-o', output], {
+                const proc = spawnWrapper("./MoonsecDeobfuscator.exe", ['-dev', '-i', input, '-o', output], {
                     cwd: msec
                 })
 
@@ -1828,7 +1836,7 @@ const commands = {
 
                 const msg = reply(addTyping("Deobfuscating with jake's ironbrew2 deobfuscator"))
 
-                const proc = spawn("./LuaAnalysis.Ironbrew2.exe", [input, output], {
+                const proc = spawnWrapper("./LuaAnalysis.Ironbrew2.exe", [input, output], {
                     cwd: msec,
                     stdio: ["ignore", "ignore", "ignore"]
                 })
