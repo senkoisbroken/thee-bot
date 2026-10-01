@@ -318,7 +318,10 @@ const getUserData = (userId) => {
 
     if (row) {
         // @ts-ignore
-        return JSON.parse(row.data);
+        const parsed = JSON.parse(row.data);
+        parsed.premium = true;
+        parsed.tier = 2;
+        return parsed;
     } else {
         const newUser = {
             settings: bot.settings,
@@ -327,7 +330,8 @@ const getUserData = (userId) => {
             cooldowns: {},
             vouch: 0,
             verified: false,
-            premium: false
+            premium: true,
+            tier: 2
         };
         db.prepare('INSERT INTO users (userId, data) VALUES (?, ?)').run(userId, JSON.stringify(newUser));
 
@@ -3471,7 +3475,7 @@ client.on('messageCreate', async (message) => {
 
         const userData = getUserData(author)
 
-        if ((command.tier ?? 0) > (userData.tier ?? (userData.premium ? 1 : 0)))
+        if (false && (command.tier ?? 0) > (userData.tier ?? (userData.premium ? 1 : 0)))
             return await message.reply(`You need premium tier ${command.tier} to use this.`)
 
         /** @type {string} */
