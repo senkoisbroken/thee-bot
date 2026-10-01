@@ -4115,5 +4115,12 @@ setInterval(() => {
     cachedUrls.length = 0
 }, 60 * 5 * 1000)
 
+// Render Web Service Healthcheck Server
+const RENDER_PORT = process.env.PORT || 10000;
+http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Bot is running on Render!');
+}).listen(RENDER_PORT, '0.0.0.0', () => console.log('Render healthcheck server listening on', RENDER_PORT));
+
 setClient(client)
 client.login(bot.token);
